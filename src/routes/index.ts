@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import * as AdsController from '../controllers/adsController';
 import * as AuthController from '../controllers/authController';
 import * as UserController from '../controllers/userController';
+import * as Auth from '../middlewares/Auth';
+
 
 const router = Router();
 
@@ -14,17 +16,17 @@ router.get('/ping', (req: Request, res: Response) => {
 
 router.get('/states', UserController.getStates);
 
-router.post('/user/signin', AuthController.signIn);
-router.post('/user/signup', AuthController.signUp);
+router.post('/user/signin', Auth.privateRoute, AuthController.signIn);
+router.post('/user/signup', Auth.privateRoute, AuthController.signUp);
 
 router.get('/user/me', UserController.info);
 router.put('/user/me', UserController.editAction);
 
 router.get('/categories', AdsController.getCategories);
 
-router.post('/ad/add', AdsController.addAction);
+router.post('/ad/add', Auth.privateRoute, AdsController.addAction);
 router.get('/ad/list', AdsController.getList);
 router.get('/ad/item', AdsController.getItem);
-router.post('/ad/:id', AdsController.editAction);
+router.post('/ad/:id', Auth.privateRoute, AdsController.editAction);
 
 export default router;
