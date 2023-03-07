@@ -17,7 +17,7 @@ server.use(cors());
 server.use(express.static(path.join(__dirname, '../public')))
 server.use(express.urlencoded({ extended: true }));
 
-server.use(apiRoutes);
+server.use('/', apiRoutes);
 
 // return status 404 if page not found
 server.use((req: Request, res: Response) => {
