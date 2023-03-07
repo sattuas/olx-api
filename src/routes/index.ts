@@ -3,6 +3,7 @@ import * as AdsController from '../controllers/adsController';
 import * as AuthController from '../controllers/authController';
 import * as UserController from '../controllers/userController';
 import * as Auth from '../middlewares/Auth';
+import * as AuthValidator from '../validators/AuthValidator';
 
 
 const router = Router();
@@ -16,11 +17,11 @@ router.get('/ping', (req: Request, res: Response) => {
 
 router.get('/states', UserController.getStates);
 
-router.post('/user/signin', Auth.privateRoute, AuthController.signIn);
-router.post('/user/signup', Auth.privateRoute, AuthController.signUp);
+router.post('/user/signin', AuthValidator.signup, AuthController.signIn);
+router.post('/user/signup', AuthValidator.signup, AuthController.signUp);
 
-router.get('/user/me', UserController.info);
-router.put('/user/me', UserController.editAction);
+router.get('/user/me', Auth.privateRoute, UserController.info);
+router.put('/user/me', Auth.privateRoute, UserController.editAction);
 
 router.get('/categories', AdsController.getCategories);
 
