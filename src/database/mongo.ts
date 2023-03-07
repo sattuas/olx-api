@@ -11,6 +11,6 @@ export const mongoConnect = async () => {
         await connect(process.env.MONGO_URL as string);
         console.log("MongoDB successfully connected!");
     } catch(error) {
-        console.log(`Erro conexão MongoDB: ${error}`);
+        console.log(`MongoDB connection error: ${error}`);
     }
 }
