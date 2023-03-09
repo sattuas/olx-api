@@ -26,3 +26,18 @@ export const signup = checkSchema({
         errorMessage: "Unfilled status."
     }
 });
+
+
+export const signin = checkSchema({
+    email: {
+        isEmail: true,
+        normalizeEmail: true, // makes the email come out more correctly
+        errorMessage: "Invalid email."
+    },
+    password: {
+        isLength: {
+            options: { min: 8 }
+        },
+        errorMessage: "Password must be at least 8 characters."
+    }
+});

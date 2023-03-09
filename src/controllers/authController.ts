@@ -7,7 +7,40 @@ import bcrypt from 'bcrypt';
 
 
 export const signIn = async (req: Request, res: Response) => {
-    // ...
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        return res.json({
+            error: errors.mapped()
+        });
+    }
+
+    const data = matchedData(req);
+
+    // validating the email
+    const user = await User.findOne({
+        email: data.email
+    });
+
+    if(!user) {
+        return res.json({ error: "E-mail e/ou senha errados!" });
+    }
+
+    // validating the email
+    const match = await bcrypt.compare(data.password, user.passwordHash);
+    if(!match) {
+        return res.json({ error: "E-mail e/ou senha errados!" });
+    }
+
+    const payload = (Date.now() + Math.random()).toString();
+    const token = await bcrypt.hash(payload, 10);
+
+    user.token = token;
+    await user.save();
+
+    return res.json({
+        token: token,
+        email: data.email
+    });
 }
 
 
@@ -18,7 +51,6 @@ export const signUp = async (req: Request, res: Response) => {
             error: errors.mapped()
         });
     }
-
     const data = matchedData(req);
 
     // checking if email already exists
@@ -56,7 +88,6 @@ export const signUp = async (req: Request, res: Response) => {
     const payload = (Date.now() + Math.random()).toString();
     const token = await bcrypt.hash(payload, 10);
 
-    
     const newuser = new User({
         name: data.name,
         email: data.email,
@@ -66,7 +97,6 @@ export const signUp = async (req: Request, res: Response) => {
     });
 
     await newuser.save();
-    
 
     return res.json({token});
 }
