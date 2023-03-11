@@ -1,4 +1,7 @@
 import { Request, Response } from 'express';
+import bcrypt from 'bcrypt';
+import mongoose from 'mongoose';
+import { validationResult, matchedData } from 'express-validator';
 import State from '../models/State';
 import User from '../models/User';
 import Category from '../models/Category';
@@ -50,5 +53,48 @@ export const info = async (req: Request, res: Response) => {
 
 
 export const editAction = async (req: Request, res: Response) => {
-    // ...
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        return res.json({
+            error: errors.mapped()
+        });
+    }
+
+    const data = matchedData(req);
+
+    let updates: any = {};
+
+    if(data.name) {
+        updates.name = data.name;
+    }
+
+    if(data.email) {
+        const emailCheck = await User.findOne({ email: data.email });
+        if(emailCheck) {
+            return res.json({ error: "E-mail já existente" });
+        }
+        updates.email = data.email;
+    }
+
+    if(data.state) {
+        if(mongoose.Types.ObjectId.isValid(data.state)) {
+            const stateCheck = await State.findById(data.state);
+            if(!stateCheck) {
+                return res.json({ error: "Estado não existe" });
+            }
+            updates.state = data.state;
+        } else {
+            return res.json({ error: "Código de estado inválido" });
+        }
+    }
+
+    if(data.password) {
+        updates.passwordHash = await bcrypt.hash(data.password, 10);
+    }
+
+    await User.findOneAndUpdate({ token: data.token }, { $set: updates });
+
+    return res.json({
+        response: true
+    });
 }
